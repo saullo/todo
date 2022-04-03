@@ -18,6 +18,8 @@ namespace Backend
 {
     public class Startup
     {
+        readonly string AllowSpecificOrigins = "AllowSpecificOrigins";
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,6 +32,13 @@ namespace Backend
         {
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("Database"));
             services.AddScoped<DataContext, DataContext>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowSpecificOrigins, builder =>
+                {
+                    builder.WithOrigins("https://localhost:5001");
+                });
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -49,6 +58,8 @@ namespace Backend
 
             app.UseHttpsRedirection();
 
+            app.UseCors(AllowSpecificOrigins);
+            
             app.UseRouting();
 
             app.UseAuthorization();
